@@ -5,6 +5,7 @@ import { ensureUserDocument } from '../services/firestore';
 import { useSessionStore } from '../store/useSessionStore';
 import LanguageToggle from './LanguageToggle';
 import AuthModal from './AuthModal';
+import OnboardingModal from './OnboardingModal';
 
 const navLinks = [
   { to: '/', label: 'Home' },
@@ -13,6 +14,18 @@ const navLinks = [
 ];
 
 const Navbar = () => {
+  const [showOnboarding, setShowOnboarding] = useState(false);
+
+  useEffect(() => {
+    const seen = localStorage.getItem('ideaforge_seen_onboarding');
+    if (!seen) setShowOnboarding(true);
+  }, []);
+
+  const close = () => {
+    localStorage.setItem('ideaforge_seen_onboarding', 'true');
+    setShowOnboarding(false);
+  };
+
   const location = useLocation();
   const navigate = useNavigate();
   const { user, setUser } = useSessionStore();
@@ -114,6 +127,7 @@ const Navbar = () => {
         onLoginEmail={handleLoginEmail}
         onRegisterEmail={handleRegisterEmail}
       />
+      <OnboardingModal open={showOnboarding} onClose={close} />
     </header>
   );
 };

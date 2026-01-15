@@ -11,6 +11,13 @@ const steps = [
   { key: 'budget', label: 'Budget comfort' },
 ];
 
+const exampleInputs = {
+  skills: 'Tailoring, Driving, Cooking, Mobile repair',
+  location: 'Varanasi, Uttar Pradesh',
+  interests: 'Gardening, Teaching kids, Crafts',
+  budget: '₹5,000 – ₹50,000',
+};
+
 const FormPage = () => {
   const navigate = useNavigate();
   const { answers, updateAnswers, setGeneratedIdeas, setLoading, loading, setError, language, setLanguage, error } =
@@ -26,8 +33,8 @@ const FormPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setError(null);
+  setLoading(true);
+  setError('Generating ideas…');
     try {
       const payload = {
         ...local,
@@ -36,6 +43,7 @@ const FormPage = () => {
         language,
       };
       updateAnswers(payload);
+      setError('Crafting low-capital ideas for your location…');
       const data = await generateIdeas(payload);
       setGeneratedIdeas(data.ideas || data.generatedIdeas || []);
       navigate('/results');
@@ -44,6 +52,7 @@ const FormPage = () => {
       setError('Could not generate ideas right now. Please try again.');
     } finally {
       setLoading(false);
+      setError(null);
     }
   };
 
@@ -71,7 +80,7 @@ const FormPage = () => {
         {activeStep === 0 && (
           <div>
             <label className="block text-sm font-semibold text-ink">What skills do you have?</label>
-            <p className="text-xs text-muted mb-2">Example: tailoring, cooking, mobile repair</p>
+            <p className="text-xs text-muted mb-2">Example: {exampleInputs.skills}</p>
             <input
               required
               value={local.skills}
@@ -85,7 +94,7 @@ const FormPage = () => {
         {activeStep === 1 && (
           <div>
             <label className="block text-sm font-semibold text-ink">Where are you based?</label>
-            <p className="text-xs text-muted mb-2">Village, town, or city name helps localize ideas.</p>
+            <p className="text-xs text-muted mb-2">Example: {exampleInputs.location}</p>
             <input
               required
               value={local.location}
@@ -99,7 +108,7 @@ const FormPage = () => {
         {activeStep === 2 && (
           <div>
             <label className="block text-sm font-semibold text-ink">What do you enjoy doing?</label>
-            <p className="text-xs text-muted mb-2">Hobbies or interests help with fit and motivation.</p>
+            <p className="text-xs text-muted mb-2">Example: {exampleInputs.interests}</p>
             <input
               value={local.interests}
               onChange={(e) => setField('interests', e.target.value)}
@@ -113,6 +122,7 @@ const FormPage = () => {
           <div className="grid sm:grid-cols-2 gap-4">
             <label className="block text-sm font-semibold text-ink">
               Budget comfort (₹)
+              <p className="text-xs text-muted">Example: {exampleInputs.budget}</p>
               <input
                 value={local.budget}
                 onChange={(e) => setField('budget', e.target.value)}

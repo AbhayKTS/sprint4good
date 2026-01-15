@@ -6,6 +6,14 @@ import LoadingOverlay from '../components/LoadingOverlay';
 const DashboardPage = () => {
   const { user, setLoading, loading } = useSessionStore();
   const [ideas, setIdeas] = useState([]);
+  const grouped = ideas.reduce((acc, idea) => {
+    const skill = idea.inputs?.skills?.[0] || idea.generatedIdeas?.[0]?.category || 'Other';
+    const budget = idea.inputs?.budget || 'Any budget';
+    const key = `${skill} | ${budget}`;
+    acc[key] = acc[key] || [];
+    acc[key].push(idea);
+    return acc;
+  }, {});
 
   useEffect(() => {
     const load = async () => {
@@ -40,25 +48,36 @@ const DashboardPage = () => {
       {ideas.length === 0 ? (
         <p className="text-muted text-sm">No saved ideas yet.</p>
       ) : (
-        <div className="grid gap-4">
-          {ideas.map((idea) => (
-            <div key={idea.id} className="bg-white p-5 rounded-2xl shadow-card border border-ink/5">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="text-sm text-muted">{idea.inputs?.location}</p>
-                  <h3 className="text-xl font-semibold">{idea.generatedIdeas?.[0]?.title || 'Saved idea'}</h3>
-                  <p className="text-muted text-sm mt-1">{idea.generatedIdeas?.[0]?.summary}</p>
-                </div>
-                <button
-                  onClick={() => handleDelete(idea.id)}
-                  className="text-sm text-red-600 font-semibold"
-                >
-                  Delete
-                </button>
+        <div className="space-y-5">
+          {Object.entries(grouped).map(([groupKey, list]) => (
+            <div key={groupKey} className="space-y-2">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-ink">{groupKey}</h3>
+                <span className="text-xs text-muted">{list.length} saved</span>
               </div>
-              {idea.businessPlan && idea.businessPlan.localization && (
-                <p className="text-sm text-muted mt-2">Plan: {idea.businessPlan.localization}</p>
-              )}
+              <div className="grid gap-3">
+                {list.map((idea) => (
+                  <div key={idea.id} className="bg-white p-5 rounded-2xl shadow-card border border-ink/5">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="text-sm text-muted">{idea.inputs?.location}</p>
+                        <h3 className="text-xl font-semibold">{idea.generatedIdeas?.[0]?.title || 'Saved idea'}</h3>
+                        <p className="text-muted text-sm mt-1">{idea.generatedIdeas?.[0]?.summary}</p>
+                        <p className="text-xs text-muted mt-1">Budget: {idea.inputs?.budget || 'Any'}</p>
+                      </div>
+                      <button
+                        onClick={() => handleDelete(idea.id)}
+                        className="text-sm text-red-600 font-semibold"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                    {idea.businessPlan && idea.businessPlan.localization && (
+                      <p className="text-sm text-muted mt-2">Plan: {idea.businessPlan.localization}</p>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
           ))}
         </div>

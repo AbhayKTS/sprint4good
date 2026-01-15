@@ -6,16 +6,30 @@ import { useSessionStore } from '../store/useSessionStore';
 import { generatePlan } from '../services/api';
 import { saveIdeaDocument } from '../services/firestore';
 import { sendFeedback } from '../services/api';
+import CommunitySuggestions from '../components/sections/CommunitySuggestions';
 
 const ResultsPage = () => {
   const { generatedIdeas, answers, user, loading, setLoading } = useSessionStore();
   const [localIdeas, setLocalIdeas] = useState(generatedIdeas || []);
+  const [status, setStatus] = useState('');
+
+  useEffect(() => {
+    if (generatedIdeas?.length) {
+      localStorage.setItem('ideaforge_last_results', JSON.stringify(generatedIdeas));
+    } else {
+      const cached = localStorage.getItem('ideaforge_last_results');
+      if (cached) {
+        setLocalIdeas(JSON.parse(cached));
+      }
+    }
+  }, [generatedIdeas]);
 
   useEffect(() => {
     setLocalIdeas(generatedIdeas || []);
   }, [generatedIdeas]);
 
   const handlePlan = async (idea) => {
+    setStatus('Crafting a lightweight plan…');
     setLoading(true);
     try {
       const data = await generatePlan({ idea, inputs: answers });
@@ -23,6 +37,7 @@ const ResultsPage = () => {
       setLocalIdeas(updated);
     } finally {
       setLoading(false);
+      setStatus('');
     }
   };
 
@@ -80,8 +95,9 @@ const ResultsPage = () => {
           </div>
         ))}
       </div>
+      <CommunitySuggestions location={answers.location} />
       <p className="text-xs text-muted">AI-generated suggestions. Please verify before execution.</p>
-      {loading && <LoadingOverlay message="Sketching a local-fit plan…" />}
+      {loading && <LoadingOverlay message={status || 'Sketching a local-fit plan…'} />}
     </div>
   );
 };
