@@ -1,0 +1,21 @@
+{
+  "name": "ideaforge-monorepo",
+  "private": true,
+  "version": "0.1.0",
+  "description": "IdeaForge hackathon project - monorepo for frontend and backend",
+  "license": "MIT",
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "dev:frontend": "npm --workspace frontend run dev",
+    "dev:backend": "npm --workspace backend run dev",
+    "build": "npm --workspace frontend run build",
+    "lint": "npm --workspace frontend run lint",
+    "start": "npm --workspace backend start"
+  },
+  "engines": {
+    "node": ">=18.18"
+  }
+}
